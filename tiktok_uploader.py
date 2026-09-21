@@ -128,6 +128,7 @@ def login_tiktok():
     with sync_playwright() as p:
         browser_context = p.chromium.launch_persistent_context(
             user_data_dir=SESSION_DIR,
+            channel="msedge",
             headless=False,
             viewport={"width": 1280, "height": 850},
             args=["--disable-blink-features=AutomationControlled"]
@@ -199,6 +200,7 @@ def upload_videos(force=False):
     with sync_playwright() as p:
         browser_context = p.chromium.launch_persistent_context(
             user_data_dir=SESSION_DIR,
+            channel="msedge",
             headless=False,
             viewport={"width": 1280, "height": 850},
             args=["--disable-blink-features=AutomationControlled"]
