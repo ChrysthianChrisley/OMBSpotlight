@@ -1,0 +1,69 @@
+# Environment variables & API keys
+.env
+.env.*
+!.env.example
+
+# YouTube & OAuth Tokens / Secrets
+credentials/
+*.pickle
+token.json
+client_secret*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments & IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary directories and build artifacts
+temp*/
+tmp/
+*.log
+
+# Media & Heavy binaries
+*.mp4
+*.mp3
+*.wav
+*.flac
+*.m4a
+*.ogg
+
+# Ignore video outputs in output/ but preserve text descriptions and metadata
+output/*.mp4
+output/*.mp3
+output/*.wav
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini

@@ -1,0 +1,319 @@
+[
+  {
+    "id": 1,
+    "band": "Abyssic Hate",
+    "file_path": "output/Abyssic_Hate_Shorts_9x16.mp4",
+    "title": "#1 - Abyssic Hate | One-Man Band Spotlight #Shorts",
+    "info_file": "output/post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=TzGSjWNrGO4",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "onemanband",
+      "abyssichate",
+      "shanerout",
+      "suicidalemotions"
+    ]
+  },
+  {
+    "id": 2,
+    "band": "Leviathan",
+    "file_path": "output/02_Leviathan_Shorts_9x16.mp4",
+    "title": "#2 - Leviathan | One-Man Band Spotlight #Shorts",
+    "info_file": "output/02_Leviathan_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=XSbHYo3fFVs",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "onemanband",
+      "leviathan",
+      "wrest",
+      "thetenthsublevelofsuicide",
+      "usbm"
+    ]
+  },
+  {
+    "id": 3,
+    "band": "Xasthur",
+    "file_path": "output/03_Xasthur_Shorts_9x16.mp4",
+    "title": "#3 - Xasthur | One-Man Band Spotlight #Shorts",
+    "info_file": "output/03_Xasthur_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=fTSBR7_uC_w",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "onemanband",
+      "xasthur",
+      "malefic",
+      "thefuneralofbeing",
+      "usbm"
+    ]
+  },
+  {
+    "id": 4,
+    "band": "Trist",
+    "file_path": "output/04_Trist_Shorts_9x16.mp4",
+    "title": "#4 - Trist | One-Man Band Spotlight #Shorts",
+    "info_file": "output/04_Trist_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=5TbUAmvClEw",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "onemanband",
+      "trist",
+      "sebevrazedniandele",
+      "czechblackmetal"
+    ]
+  },
+  {
+    "id": 5,
+    "band": "Panopticon",
+    "file_path": "output/05_Panopticon_Shorts_9x16.mp4",
+    "title": "#5 - Panopticon | One-Man Band Spotlight #Shorts",
+    "info_file": "output/05_Panopticon_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=XnBBoyUJW2Q",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "atmosphericblackmetal",
+      "onemanband",
+      "panopticon",
+      "austinlunn",
+      "autumneternal"
+    ]
+  },
+  {
+    "id": 6,
+    "band": "Lustre",
+    "file_path": "output/06_Lustre_Shorts_9x16.mp4",
+    "title": "#6 - Lustre | One-Man Band Spotlight #Shorts",
+    "info_file": "output/06_Lustre_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=j36eeJUGbEI",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "atmosphericblackmetal",
+      "ambientblackmetal",
+      "onemanband",
+      "lustre",
+      "nachtzeit"
+    ]
+  },
+  {
+    "id": 7,
+    "band": "Herbstregen",
+    "file_path": "output/07_Herbstregen_Shorts_9x16.mp4",
+    "title": "#7 - Herbstregen | One-Man Band Spotlight #Shorts",
+    "info_file": "output/07_Herbstregen_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=bO-q3tXhSWA",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "depressiveblackmetal",
+      "onemanband",
+      "herbstregen",
+      "lebengescheitert"
+    ]
+  },
+  {
+    "id": 8,
+    "band": "Bilskirnir",
+    "file_path": "output/08_Bilskirnir_Shorts_9x16.mp4",
+    "title": "#8 - Bilskirnir | One-Man Band Spotlight #Shorts",
+    "info_file": "output/08_Bilskirnir_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=bjzaYbOjcHU",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "paganblackmetal",
+      "onemanband",
+      "bilskirnir",
+      "widar",
+      "wotansvolk"
+    ],
+    "uploaded_at": "2026-09-21 07:36:38"
+  },
+  {
+    "id": 9,
+    "band": "Violet Cold",
+    "file_path": "output/09_Violet_Cold_Shorts_9x16.mp4",
+    "title": "#9 - Violet Cold | One-Man Band Spotlight #Shorts",
+    "info_file": "output/09_Violet_Cold_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=gS4JE857-XY",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "blackgaze",
+      "onemanband",
+      "violetcold",
+      "eminguliyev",
+      "anomie"
+    ],
+    "uploaded_at": "2026-09-21 07:36:43"
+  },
+  {
+    "id": 10,
+    "band": "Mizmor",
+    "file_path": "output/10_Mizmor_Shorts_9x16.mp4",
+    "title": "#10 - Mizmor | One-Man Band Spotlight #Shorts",
+    "info_file": "output/10_Mizmor_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=aCKFhM_qRNQ",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "doommetal",
+      "blackeneddoom",
+      "onemanband",
+      "mizmor",
+      "aln",
+      "yodh"
+    ],
+    "uploaded_at": "2026-09-21 07:36:48"
+  },
+  {
+    "id": 11,
+    "band": "Nihilistium",
+    "file_path": "output/11_Nihilistium_Shorts_9x16.mp4",
+    "title": "#11 - Nihilistium | One-Man Band Spotlight #Shorts",
+    "info_file": "output/11_Nihilistium_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=bi-ILZx3q-8",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "depressiveblackmetal",
+      "onemanband",
+      "nihilistium",
+      "mortemiis"
+    ],
+    "uploaded_at": "2026-09-21 07:36:52"
+  },
+  {
+    "id": 12,
+    "band": "Sadness",
+    "file_path": "output/12_Sadness_Shorts_9x16.mp4",
+    "title": "#12 - Sadness | One-Man Band Spotlight #Shorts",
+    "info_file": "output/12_Sadness_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=Q1W4qrc8Fqo",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "blackgaze",
+      "postblackmetal",
+      "sadness",
+      "damianantonojeda",
+      "trha",
+      "onemanband"
+    ],
+    "uploaded_at": "2026-09-21 07:36:55"
+  },
+  {
+    "id": 13,
+    "band": "Grausamkeit",
+    "file_path": "output/13_Grausamkeit_Shorts_9x16.mp4",
+    "title": "#13 - Grausamkeit | One-Man Band Spotlight #Shorts",
+    "info_file": "output/13_Grausamkeit_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=spGoPnfKczo",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "rawblackmetal",
+      "dungeonsynth",
+      "onemanband",
+      "grausamkeit",
+      "bsod"
+    ],
+    "uploaded_at": "2026-09-21 07:36:59"
+  },
+  {
+    "id": 14,
+    "band": "Woods of Desolation",
+    "file_path": "output/14_Woods_Of_Desolation_Shorts_9x16.mp4",
+    "title": "#14 - Woods of Desolation | One-Man Band Spotlight #Shorts",
+    "info_file": "output/14_Woods_Of_Desolation_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=_aPWbzpeskY",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "postblackmetal",
+      "dsbm",
+      "woodsofdesolation",
+      "onemanband"
+    ],
+    "uploaded_at": "2026-09-21 07:37:04"
+  },
+  {
+    "id": 15,
+    "band": "Funesto",
+    "file_path": "output/15_Funesto_Shorts_9x16.mp4",
+    "title": "#15 - Funesto | One-Man Band Spotlight #Shorts",
+    "info_file": "output/15_Funesto_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=WsleftvFgBg",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "depressiveblackmetal",
+      "funesto",
+      "funebre",
+      "onemanband"
+    ],
+    "uploaded_at": "2026-09-21 07:37:07"
+  },
+  {
+    "id": 16,
+    "band": "Taake",
+    "file_path": "output/16_Taake_Shorts_9x16.mp4",
+    "title": "#16 - Taake | One-Man Band Spotlight #Shorts",
+    "info_file": "output/16_Taake_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=hGij6lMNb5I",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "norwegianblackmetal",
+      "taake",
+      "hoest",
+      "onemanband"
+    ],
+    "uploaded_at": "2026-09-21 07:37:11"
+  },
+  {
+    "id": 17,
+    "band": "Sacred Son",
+    "file_path": "output/17_Sacred_Son_Shorts_9x16.mp4",
+    "title": "#17 - Sacred Son | One-Man Band Spotlight #Shorts",
+    "info_file": "output/17_Sacred_Son_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=o986kexNXUw",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "atmosphericblackmetal",
+      "sacredson",
+      "danecross",
+      "onemanband"
+    ],
+    "uploaded_at": "2026-09-21 07:37:15"
+  }
+]
