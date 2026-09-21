@@ -9,6 +9,11 @@ credentials/
 token.json
 client_secret*.json
 
+# TikTok Session & Cookies
+tiktok_session/
+tiktok_cookies.json
+
+
 # Python
 __pycache__/
 *.py[cod]

@@ -154,6 +154,30 @@ python uploader.py --upload-pending
 
 ---
 
+### 3. Enviar para o TikTok ([@onemanbands](https://www.tiktok.com/@onemanbands))
+
+O módulo `tiktok_uploader.py` inclui **proteção anti-shadowban**, limitando o envio a **no máximo 2 vídeos por dia** para garantir o alcance orgânico seguro da conta nova.
+
+#### Passo 1: Conectar a Conta (Login Único)
+Dê um duplo clique no arquivo:
+👉 `conectar_tiktok.bat`
+*(Ou execute: `python tiktok_uploader.py --login`).*
+Uma janela do navegador será aberta. Escaneie o QR Code com o aplicativo do TikTok no celular (ou entre com usuário/senha) e confirme no terminal. A sessão ficará salva em `tiktok_session/`.
+
+#### Passo 2: Enviar os Vídeos do Dia (2 por dia)
+Dê um duplo clique no arquivo:
+👉 `enviar_tiktok.bat`
+*(Ou execute: `python tiktok_uploader.py --upload`).*
+O script enviará até 2 vídeos pendentes por dia e atualizará o arquivo `tiktok_history.json`. Se o limite diário for atingido, a trava de segurança protegerá o canal até o dia seguinte!
+
+#### Ver Status e Fila do TikTok:
+```bash
+python tiktok_uploader.py --status
+```
+
+---
+
 ## 📄 Licença
 
 Distribuído sob a licença **MIT**. Veja [`LICENSE`](LICENSE) para mais informações.
+
