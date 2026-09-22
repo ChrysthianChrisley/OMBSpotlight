@@ -350,7 +350,12 @@ def upload_videos(force=False, visible=False):
                 page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                 page.wait_for_timeout(1000)
                 
-                post_button = page.locator('button:has-text("Post"), button:has-text("Publicar")').first
+                # Localizar especificamente o botão vermelho primário de publicação (evitando o botão da barra lateral)
+                post_button = page.locator('button.Button__root--type-primary:has-text("Post"), button.Button__root--type-primary:has-text("Publicar")').first
+                if post_button.count() == 0:
+                    post_button = page.get_by_role("button", name="Post", exact=True)
+                if post_button.count() == 0:
+                    post_button = page.get_by_role("button", name="Publicar", exact=True)
                 
                 is_ready = False
                 for _ in range(45):  # até 90 segundos
