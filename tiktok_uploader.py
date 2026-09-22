@@ -176,6 +176,43 @@ def login_tiktok():
                 pass
 
 
+def dismiss_modals(page):
+    """Fecha qualquer modal, popup ou overlay informativo do TikTok Studio (ex: 'Preview your video on your phone')."""
+    try:
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
+    except Exception:
+        pass
+
+    button_selectors = [
+        'button:has-text("Got it")',
+        'button:has-text("Entendi")',
+        'button:has-text("OK")',
+        'button:has-text("Certo")',
+        'button:has-text("Done")',
+        '.TUXModal-overlay button',
+        '[data-floating-ui-portal] button'
+    ]
+    for sel in button_selectors:
+        try:
+            btns = page.locator(sel)
+            for i in range(btns.count()):
+                b = btns.nth(i)
+                if b.is_visible():
+                    txt = b.inner_text().strip().lower()
+                    if txt in ["got it", "entendi", "ok", "certo", "done", "close", "fechar", ""]:
+                        print(f"Fechando aviso/popup do TikTok: '{b.inner_text().strip()}'...")
+                        b.click(force=True)
+                        page.wait_for_timeout(500)
+        except Exception:
+            pass
+
+    try:
+        page.keyboard.press("Escape")
+    except Exception:
+        pass
+
+
 def upload_videos(force=False, visible=False):
     history = load_history()
     uploaded_ids = {item["id"] for item in history}
@@ -217,6 +254,9 @@ def upload_videos(force=False, visible=False):
     if not os.path.exists(SESSION_DIR):
         print("❌ Erro: Nenhuma sessão encontrada. Execute 'conectar_tiktok.bat' primeiro para fazer o login.")
         return
+
+    successful_uploads = []
+    failed_uploads = []
 
     with sync_playwright() as p:
         browser_context = p.chromium.launch_persistent_context(
@@ -284,18 +324,22 @@ def upload_videos(force=False, visible=False):
                 if not file_input:
                     print("❌ Não foi possível anexar o arquivo de vídeo. Tentando capturar tela para diagnóstico...")
                     page.screenshot(path=f"debug_error_upload_{ep_id}.png")
+                    failed_uploads.append(ep)
                     continue
 
                 print("Enviando arquivo para o TikTok Studio...")
                 file_input.set_input_files(video_file)
                 page.wait_for_timeout(5000)
                 
+                # Fechar popups de onboarding que o TikTok exibe ao carregar o vídeo
+                dismiss_modals(page)
+                
                 # 4. Preencher legenda e hashtags
                 print("Preenchendo legenda e hashtags...")
                 caption_box = page.locator('div[contenteditable="true"], div.public-DraftEditor-content, div[class*="DraftEditor-editorContainer"] div[contenteditable]').first
                 try:
                     caption_box.wait_for(state="attached", timeout=30000)
-                    caption_box.click()
+                    caption_box.click(force=True)
                     page.keyboard.press("Control+A")
                     page.keyboard.press("Backspace")
                     page.wait_for_timeout(500)
@@ -303,6 +347,9 @@ def upload_videos(force=False, visible=False):
                     print("✅ Legenda inserida com sucesso!")
                 except Exception as e:
                     print(f"Aviso ao preencher legenda: {e}")
+
+                # Fechar popups que possam ter aparecido
+                dismiss_modals(page)
 
                 # 5. Aguardar processamento do vídeo (100% / botão habilitado)
                 print("Aguardando upload e processamento do vídeo no servidor do TikTok...")
@@ -316,33 +363,57 @@ def upload_videos(force=False, visible=False):
                             break
                     except Exception:
                         pass
+                    dismiss_modals(page)
                     page.wait_for_timeout(2000)
                     
                 if is_ready:
+                    dismiss_modals(page)
                     print("Clicando no botão de publicação...")
                     try:
-                        post_button.click()
+                        # force=True garante o clique mesmo se houver camada sobreposta
+                        post_button.click(force=True)
                         print("Aguardando confirmação do TikTok...")
-                        page.wait_for_timeout(8000)
                         
-                        # Gravar no histórico
-                        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        history.append({
-                            "id": ep_id,
-                            "band": band,
-                            "video_file": ep["video_file"],
-                            "info_file": ep["info_file"],
-                            "caption": caption,
-                            "uploaded_at": now_str,
-                            "status": "uploaded"
-                        })
-                        save_history(history)
-                        print(f"🎉 SUCESSO! Episódio #{ep_id:02d} ({band}) publicado e registrado em 'tiktok_history.json'!")
+                        is_posted = False
+                        for _ in range(15):  # até 30 segundos
+                            page.wait_for_timeout(2000)
+                            cur = page.url
+                            if "content" in cur or "manage" in cur:
+                                is_posted = True
+                                break
+                            success_indicators = page.locator('button:has-text("Manage your videos"), button:has-text("Upload another video"), button:has-text("Gerenciar seus vídeos"), button:has-text("Carregar outro vídeo"), div:has-text("Your video has been uploaded"), div:has-text("Seu vídeo foi publicado")')
+                            if success_indicators.count() > 0 and success_indicators.first.is_visible():
+                                is_posted = True
+                                break
+                            if not post_button.is_visible():
+                                is_posted = True
+                                break
+                                
+                        if is_posted:
+                            now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            history.append({
+                                "id": ep_id,
+                                "band": band,
+                                "video_file": ep["video_file"],
+                                "info_file": ep["info_file"],
+                                "caption": caption,
+                                "uploaded_at": now_str,
+                                "status": "uploaded"
+                            })
+                            save_history(history)
+                            successful_uploads.append(ep)
+                            print(f"🎉 SUCESSO! Episódio #{ep_id:02d} ({band}) publicado e registrado em 'tiktok_history.json'!")
+                        else:
+                            print(f"⚠️ Não foi possível confirmar automaticamente a publicação do #{ep_id:02d}. Capturando tela...")
+                            page.screenshot(path=f"debug_unconfirmed_{ep_id}.png")
+                            failed_uploads.append(ep)
                     except Exception as e:
-                        print(f"Erro ao clicar em publicar: {e}")
+                        print(f"Erro ao clicar em publicar #{ep_id:02d}: {e}")
+                        failed_uploads.append(ep)
                 else:
                     print("⚠️ O botão de publicação não ficou pronto a tempo. Capturando tela para diagnóstico...")
                     page.screenshot(path=f"debug_timeout_{ep_id}.png")
+                    failed_uploads.append(ep)
 
                 # Se ainda houver outro vídeo para postar hoje, aguardar o intervalo seguro
                 if idx < len(to_upload) - 1:
@@ -353,8 +424,18 @@ def upload_videos(force=False, visible=False):
                 browser_context.close()
             except Exception:
                 pass
+                
         print("\n=======================================================")
-        print("Envio diário concluído com sucesso!")
+        if successful_uploads:
+            print(f"🎉 Envio concluído! {len(successful_uploads)} vídeo(s) publicado(s) com sucesso hoje:")
+            for s in successful_uploads:
+                print(f"   ✅ #{s['id']:02d} - {s['band']}")
+        if failed_uploads:
+            print(f"\n⚠️ Atenção: {len(failed_uploads)} vídeo(s) não foram concluídos:")
+            for f in failed_uploads:
+                print(f"   ❌ #{f['id']:02d} - {f['band']}")
+        if not successful_uploads and not failed_uploads:
+            print("Nenhum vídeo pendente para envio hoje.")
         print("=======================================================\n")
 
 if __name__ == "__main__":
