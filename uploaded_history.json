@@ -315,5 +315,24 @@
       "onemanband"
     ],
     "uploaded_at": "2026-09-21 07:37:15"
+  },
+  {
+    "id": 18,
+    "band": "Decalius",
+    "file_path": "output/18_Decalius_Shorts_9x16.mp4",
+    "title": "#18 - Decalius | One-Man Band Spotlight #Shorts",
+    "info_file": "output/18_Decalius_post_info.txt",
+    "status": "uploaded",
+    "video_url": "https://www.youtube.com/watch?v=-KTzv1sLV_k",
+    "tags": [
+      "shorts",
+      "blackmetal",
+      "dsbm",
+      "decalius",
+      "depressiveblackmetal",
+      "atmosphericblackmetal",
+      "onemanband"
+    ],
+    "uploaded_at": "2026-09-21 21:55:11"
   }
 ]

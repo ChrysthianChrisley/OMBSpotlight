@@ -177,38 +177,13 @@ def login_tiktok():
 
 
 def dismiss_modals(page):
-    """Fecha qualquer modal, popup ou overlay informativo do TikTok Studio (ex: 'Preview your video on your phone')."""
+    """Fecha qualquer modal ou popup informativo de onboarding (ex: 'Preview your video on your phone' / Got it)."""
     try:
-        page.keyboard.press("Escape")
-        page.wait_for_timeout(300)
-    except Exception:
-        pass
-
-    button_selectors = [
-        'button:has-text("Got it")',
-        'button:has-text("Entendi")',
-        'button:has-text("OK")',
-        'button:has-text("Certo")',
-        'button:has-text("Done")',
-        '.TUXModal-overlay button',
-        '[data-floating-ui-portal] button'
-    ]
-    for sel in button_selectors:
-        try:
-            btns = page.locator(sel)
-            for i in range(btns.count()):
-                b = btns.nth(i)
-                if b.is_visible():
-                    txt = b.inner_text().strip().lower()
-                    if txt in ["got it", "entendi", "ok", "certo", "done", "close", "fechar", ""]:
-                        print(f"Fechando aviso/popup do TikTok: '{b.inner_text().strip()}'...")
-                        b.click(force=True)
-                        page.wait_for_timeout(500)
-        except Exception:
-            pass
-
-    try:
-        page.keyboard.press("Escape")
+        got_it = page.locator('button:has-text("Got it"), button:has-text("Entendi")')
+        if got_it.count() > 0 and got_it.first.is_visible():
+            print("Fechando popup informativo 'Got it' do TikTok...")
+            got_it.first.click(force=True)
+            page.wait_for_timeout(1000)
     except Exception:
         pass
 
@@ -220,7 +195,7 @@ def upload_videos(force=False, visible=False):
     pending = [ep for ep in all_episodes if ep["id"] not in uploaded_ids]
     
     if not pending:
-        print("\n🎉 Todos os 17 episódios da série já foram enviados com sucesso para o TikTok!")
+        print("\n🎉 Todos os episódios da série já foram enviados com sucesso para o TikTok!")
         return
 
     today_uploads = get_today_uploads(history)
@@ -243,10 +218,11 @@ def upload_videos(force=False, visible=False):
         print("=======================================================\n")
         return
 
-    slots_available = (MAX_VIDEOS_PER_DAY - today_count) if not force else len(pending)
+    # Enviar 1 vídeo por vez a cada execução (conforme solicitado)
+    slots_available = 1 if (force or today_count < MAX_VIDEOS_PER_DAY) else 0
     to_upload = pending[:slots_available]
     
-    print(f"Vídeos programados para envio agora: {len(to_upload)}")
+    print(f"Vídeo programado para envio nesta execução: 1 vídeo por vez")
     for item in to_upload:
         print(f" - #{item['id']:02d}: {item['band']}")
     print("-------------------------------------------------------\n")
@@ -263,7 +239,7 @@ def upload_videos(force=False, visible=False):
             user_data_dir=SESSION_DIR,
             channel="msedge",
             headless=not visible,
-            viewport={"width": 1280, "height": 850},
+            viewport={"width": 1280, "height": 950},
             args=["--disable-blink-features=AutomationControlled"]
         )
         
@@ -287,19 +263,29 @@ def upload_videos(force=False, visible=False):
                     page.goto(TIKTOK_STUDIO_URL, wait_until="domcontentloaded", timeout=60000)
                 
                 # Aguardar estabilização do app React
-                page.wait_for_timeout(5000)
+                page.wait_for_timeout(4000)
                 
                 if "login" in page.url:
                     print("❌ Sessão expirada ou não logada. Por favor, execute 'conectar_tiktok.bat' novamente.")
                     return
 
-                # 2. Descartar rascunho anterior se houver
+                # 2. Fechar diálogo de confirmação de descarte de execução anterior se tiver ficado aberto
                 try:
-                    discard_btn = page.locator('button:has-text("Discard"), button:has-text("Descartar")')
-                    if discard_btn.count() > 0 and discard_btn.first.is_visible():
-                        print("Limpando rascunho anterior não finalizado no estúdio...")
-                        discard_btn.first.click()
-                        page.wait_for_timeout(3000)
+                    discard_dialog = page.locator('div[role="dialog"] button:has-text("Discard"), div[role="dialog"] button:has-text("Descartar")')
+                    if discard_dialog.count() > 0 and discard_dialog.first.is_visible():
+                        print("Fechando diálogo de rascunho anterior pendente...")
+                        discard_dialog.first.click(force=True)
+                        page.wait_for_timeout(2000)
+                except Exception:
+                    pass
+                    
+                # Se houver banner superior de rascunho não salvo
+                try:
+                    stale_banner = page.locator('div:has-text("wasn\'t saved") button:has-text("Discard")')
+                    if stale_banner.count() > 0 and stale_banner.first.is_visible():
+                        print("Descartando rascunho anterior não finalizado do estúdio...")
+                        stale_banner.first.click(force=True)
+                        page.wait_for_timeout(2000)
                 except Exception:
                     pass
 
@@ -329,21 +315,27 @@ def upload_videos(force=False, visible=False):
 
                 print("Enviando arquivo para o TikTok Studio...")
                 file_input.set_input_files(video_file)
-                page.wait_for_timeout(5000)
+                page.wait_for_timeout(6000)
                 
-                # Fechar popups de onboarding que o TikTok exibe ao carregar o vídeo
+                # Fechar popups informativos de onboarding ("Preview on your phone" / Got it)
                 dismiss_modals(page)
                 
                 # 4. Preencher legenda e hashtags
                 print("Preenchendo legenda e hashtags...")
-                caption_box = page.locator('div[contenteditable="true"], div.public-DraftEditor-content, div[class*="DraftEditor-editorContainer"] div[contenteditable]').first
+                caption_box = page.locator('div[contenteditable="true"]').first
                 try:
-                    caption_box.wait_for(state="attached", timeout=30000)
+                    caption_box.wait_for(state="visible", timeout=30000)
                     caption_box.click(force=True)
+                    page.wait_for_timeout(300)
                     page.keyboard.press("Control+A")
+                    page.wait_for_timeout(200)
                     page.keyboard.press("Backspace")
+                    page.wait_for_timeout(300)
+                    page.keyboard.type(caption, delay=10)
                     page.wait_for_timeout(500)
-                    page.keyboard.type(caption, delay=15)
+                    # Clicar fora para fechar o menu de autocomplete de hashtags
+                    page.locator('h1, h2, div:has-text("Details")').first.click(force=True)
+                    page.wait_for_timeout(500)
                     print("✅ Legenda inserida com sucesso!")
                 except Exception as e:
                     print(f"Aviso ao preencher legenda: {e}")
@@ -353,29 +345,34 @@ def upload_videos(force=False, visible=False):
 
                 # 5. Aguardar processamento do vídeo (100% / botão habilitado)
                 print("Aguardando upload e processamento do vídeo no servidor do TikTok...")
-                post_button = page.locator('button:has-text("Publicar"), button:has-text("Post")').first
+                
+                # Rolar para baixo para garantir que o botão Post esteja carregado e visível
+                page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                page.wait_for_timeout(1000)
+                
+                post_button = page.locator('button:has-text("Post"), button:has-text("Publicar")').first
                 
                 is_ready = False
                 for _ in range(45):  # até 90 segundos
                     try:
+                        dismiss_modals(page)
                         if post_button.is_visible() and post_button.is_enabled():
                             is_ready = True
                             break
                     except Exception:
                         pass
-                    dismiss_modals(page)
                     page.wait_for_timeout(2000)
                     
                 if is_ready:
                     dismiss_modals(page)
-                    print("Clicando no botão de publicação...")
+                    print("Clicando no botão de publicação (Post)...")
                     try:
-                        # force=True garante o clique mesmo se houver camada sobreposta
+                        post_button.scroll_into_view_if_needed()
                         post_button.click(force=True)
                         print("Aguardando confirmação do TikTok...")
                         
                         is_posted = False
-                        for _ in range(15):  # até 30 segundos
+                        for _ in range(20):  # até 40 segundos
                             page.wait_for_timeout(2000)
                             cur = page.url
                             if "content" in cur or "manage" in cur:
