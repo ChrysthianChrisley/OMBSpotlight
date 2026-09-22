@@ -176,7 +176,7 @@ def login_tiktok():
                 pass
 
 
-def upload_videos(force=False):
+def upload_videos(force=False, visible=False):
     history = load_history()
     uploaded_ids = {item["id"] for item in history}
     all_episodes = get_all_episodes()
@@ -195,6 +195,7 @@ def upload_videos(force=False):
     print("=======================================================")
     print(f"Data de hoje: {today_str}")
     print(f"Envios já realizados hoje: {today_count} / {MAX_VIDEOS_PER_DAY}")
+    print(f"Modo: {'Visível' if visible else 'Silencioso (Segundo plano)'}")
     
     if today_count >= MAX_VIDEOS_PER_DAY and not force:
         print("\n🛡️ PROTEÇÃO ANTI-SHADOWBAN ATIVADA:")
@@ -221,7 +222,7 @@ def upload_videos(force=False):
         browser_context = p.chromium.launch_persistent_context(
             user_data_dir=SESSION_DIR,
             channel="msedge",
-            headless=False,
+            headless=not visible,
             viewport={"width": 1280, "height": 850},
             args=["--disable-blink-features=AutomationControlled"]
         )
@@ -235,108 +236,93 @@ def upload_videos(force=False):
                 video_file = os.path.abspath(ep["video_file"])
                 caption = ep["caption"]
                 
-                print(f"\n[{idx+1}/{len(to_upload)}] Enviando #{ep_id:02d} - {band}...")
+                print(f"[{idx+1}/{len(to_upload)}] Preparando envio de #{ep_id:02d} - {band}...")
                 print(f"Arquivo: {video_file}")
-                print(f"Legenda ({len(caption)} caracteres):\n{caption}\n")
                 
-                # Navegar para página de upload
+                # 1. Navegar para o estúdio de upload
                 try:
                     page.goto(TIKTOK_STUDIO_URL, wait_until="domcontentloaded", timeout=60000)
                 except Exception:
                     page.wait_for_timeout(2000)
                     page.goto(TIKTOK_STUDIO_URL, wait_until="domcontentloaded", timeout=60000)
-                page.wait_for_timeout(4000)
+                
+                # Aguardar estabilização do app React
+                page.wait_for_timeout(5000)
                 
                 if "login" in page.url:
                     print("❌ Sessão expirada ou não logada. Por favor, execute 'conectar_tiktok.bat' novamente.")
                     return
 
-
-                # Localizar input de arquivo
-                print("Selecionando arquivo de vídeo...")
-                file_input = None
+                # 2. Descartar rascunho anterior se houver
                 try:
-                    # Primeiro tentar na página principal
-                    inputs = page.locator('input[type="file"]')
-                    if inputs.count() > 0:
-                        file_input = inputs.first
-                    else:
-                        # Tentar dentro de iframes
-                        for frame in page.frames:
-                            f_inputs = frame.locator('input[type="file"]')
-                            if f_inputs.count() > 0:
-                                file_input = f_inputs.first
-                                break
+                    discard_btn = page.locator('button:has-text("Discard"), button:has-text("Descartar")')
+                    if discard_btn.count() > 0 and discard_btn.first.is_visible():
+                        print("Limpando rascunho anterior não finalizado no estúdio...")
+                        discard_btn.first.click()
+                        page.wait_for_timeout(3000)
+                except Exception:
+                    pass
+
+                # 3. Localizar input de arquivo (esperando montar no DOM)
+                print("Aguardando campo de upload...")
+                try:
+                    page.wait_for_selector('input[type="file"]', state="attached", timeout=45000)
                 except Exception as e:
-                    print(f"Aviso ao buscar input de arquivo: {e}")
-                    
+                    print(f"Aviso ao aguardar campo de arquivo: {e}")
+
+                file_input = None
+                inputs = page.locator('input[type="file"]')
+                if inputs.count() > 0:
+                    file_input = inputs.first
+                else:
+                    for frame in page.frames:
+                        f_inputs = frame.locator('input[type="file"]')
+                        if f_inputs.count() > 0:
+                            file_input = f_inputs.first
+                            break
+                            
                 if not file_input:
-                    print("❌ Não foi possível localizar o campo de upload de vídeo na página do TikTok.")
-                    print("Tente atualizar a página ou verificar o navegador.")
+                    print("❌ Não foi possível anexar o arquivo de vídeo. Tentando capturar tela para diagnóstico...")
+                    page.screenshot(path=f"debug_error_upload_{ep_id}.png")
                     continue
 
+                print("Enviando arquivo para o TikTok Studio...")
                 file_input.set_input_files(video_file)
-                print("Carregando vídeo... Aguardando a interface de postagem...")
-                page.wait_for_timeout(6000)
+                page.wait_for_timeout(5000)
                 
-                # Localizar o campo de legenda
+                # 4. Preencher legenda e hashtags
                 print("Preenchendo legenda e hashtags...")
-                caption_box = None
-                selectors = [
-                    'div[contenteditable="true"]',
-                    'div.public-DraftEditor-content',
-                    'div[class*="DraftEditor-editorContainer"] div[contenteditable]',
-                    'div[class*="caption-editor"] [contenteditable="true"]',
-                    'div[data-placeholder]'
-                ]
-                
-                for sel in selectors:
-                    loc = page.locator(sel)
-                    if loc.count() > 0:
-                        caption_box = loc.first
-                        break
-                        
-                if caption_box:
-                    try:
-                        caption_box.click()
-                        page.keyboard.press("Control+A")
-                        page.keyboard.press("Backspace")
-                        page.wait_for_timeout(500)
-                        
-                        # Digitar de forma natural
-                        page.keyboard.type(caption, delay=20)
-                        print("✅ Legenda inserida com sucesso!")
-                    except Exception as e:
-                        print(f"Aviso ao preencher legenda: {e}")
-                else:
-                    print("⚠️ Campo de legenda não identificado automaticamente; verifique o navegador.")
+                caption_box = page.locator('div[contenteditable="true"], div.public-DraftEditor-content, div[class*="DraftEditor-editorContainer"] div[contenteditable]').first
+                try:
+                    caption_box.wait_for(state="attached", timeout=30000)
+                    caption_box.click()
+                    page.keyboard.press("Control+A")
+                    page.keyboard.press("Backspace")
+                    page.wait_for_timeout(500)
+                    page.keyboard.type(caption, delay=15)
+                    print("✅ Legenda inserida com sucesso!")
+                except Exception as e:
+                    print(f"Aviso ao preencher legenda: {e}")
 
-                # Aguardar o upload concluir (procurar indicação de 100% ou botão habilitado)
-                print("Aguardando confirmação de processamento do vídeo...")
-                page.wait_for_timeout(10000)
+                # 5. Aguardar processamento do vídeo (100% / botão habilitado)
+                print("Aguardando upload e processamento do vídeo no servidor do TikTok...")
+                post_button = page.locator('button:has-text("Publicar"), button:has-text("Post")').first
                 
-                # Procurar o botão Publicar / Post
-                post_button = None
-                button_selectors = [
-                    'button:has-text("Publicar")',
-                    'button:has-text("Post")',
-                    'button.btn-post',
-                    'button[class*="button-post"]',
-                    'button[class*="primary"]:has-text("Post")'
-                ]
-                
-                for b_sel in button_selectors:
-                    btn = page.locator(b_sel)
-                    if btn.count() > 0:
-                        post_button = btn.first
-                        break
-                        
-                if post_button:
+                is_ready = False
+                for _ in range(45):  # até 90 segundos
+                    try:
+                        if post_button.is_visible() and post_button.is_enabled():
+                            is_ready = True
+                            break
+                    except Exception:
+                        pass
+                    page.wait_for_timeout(2000)
+                    
+                if is_ready:
                     print("Clicando no botão de publicação...")
                     try:
-                        post_button.wait_for(state="visible", timeout=60000)
                         post_button.click()
-                        print("Aguardando confirmação de envio...")
+                        print("Aguardando confirmação do TikTok...")
                         page.wait_for_timeout(8000)
                         
                         # Gravar no histórico
@@ -355,20 +341,8 @@ def upload_videos(force=False):
                     except Exception as e:
                         print(f"Erro ao clicar em publicar: {e}")
                 else:
-                    print("⚠️ Botão de publicação não encontrado automaticamente.")
-                    input("Pressione [ENTER] no terminal após clicar em 'Publicar' manualmente no navegador...")
-                    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    history.append({
-                        "id": ep_id,
-                        "band": band,
-                        "video_file": ep["video_file"],
-                        "info_file": ep["info_file"],
-                        "caption": caption,
-                        "uploaded_at": now_str,
-                        "status": "uploaded"
-                    })
-                    save_history(history)
-                    print(f"Episódio #{ep_id:02d} registrado com sucesso!")
+                    print("⚠️ O botão de publicação não ficou pronto a tempo. Capturando tela para diagnóstico...")
+                    page.screenshot(path=f"debug_timeout_{ep_id}.png")
 
                 # Se ainda houver outro vídeo para postar hoje, aguardar o intervalo seguro
                 if idx < len(to_upload) - 1:
@@ -391,11 +365,14 @@ if __name__ == "__main__":
         show_status()
     elif "--upload" in args:
         force_flag = "--force" in args
-        upload_videos(force=force_flag)
+        visible_flag = "--visible" in args
+        upload_videos(force=force_flag, visible=visible_flag)
     else:
         print("Uso:")
         print("  python tiktok_uploader.py --login    (Conectar sua conta TikTok)")
         print("  python tiktok_uploader.py --status   (Ver status de postagens e fila)")
-        print("  python tiktok_uploader.py --upload   (Enviar os vídeos permitidos hoje)")
-        print("  python tiktok_uploader.py --upload --force  (Forçar envio ignorando limite diário)")
+        print("  python tiktok_uploader.py --upload   (Enviar vídeos em modo 100% silencioso)")
+        print("  python tiktok_uploader.py --upload --visible  (Enviar com navegador visível na tela)")
+        print("  python tiktok_uploader.py --upload --force    (Forçar envio ignorando limite diário)")
         show_status()
+
